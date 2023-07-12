@@ -1,0 +1,93 @@
+[gd_scene load_steps=3 format=3 uid="uid://bof2hw6f850mv"]
+
+[ext_resource type="FontFile" uid="uid://ug1cw7v30jiv" path="res://fonts/Xolonium-Regular.ttf" id="2_44uha"]
+
+[sub_resource type="GDScript" id="GDScript_3xoao"]
+script/source = "extends CanvasLayer
+
+# Notifies `Main` node that the button has been pressed
+signal start_game
+
+func show_message(text):
+	$Message.text = text
+	$Message.show()
+	$MessageTimer.start()
+
+
+func show_game_over():
+	show_message(\"Game Over\")
+	# Wait until the MessageTimer has counted down.
+	await $MessageTimer.timeout
+
+	$Message.text = \"Dodge the\\nCreeps!\"
+	$Message.show()
+	# Make a one-shot timer and wait for it to finish.
+	await get_tree().create_timer(1.0).timeout
+	$StartButton.show()
+
+func update_score(score):
+	$ScoreLabel.text = str(score)
+
+func _on_start_button_pressed():
+	$StartButton.hide()
+	start_game.emit()
+
+func _on_message_timer_timeout():
+	$Message.hide()
+"
+
+[node name="HUD" type="CanvasLayer"]
+script = SubResource("GDScript_3xoao")
+
+[node name="ScoreLabel" type="Label" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -22.5
+offset_right = 22.5
+offset_bottom = 81.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("2_44uha")
+theme_override_font_sizes/font_size = 64
+text = "0"
+
+[node name="Message" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -121.5
+offset_right = 240.0
+offset_bottom = 121.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_44uha")
+theme_override_font_sizes/font_size = 64
+text = "Dodge the creeps!"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="StartButton" type="Button" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -140.0
+offset_right = 100.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/font = ExtResource("2_44uha")
+theme_override_font_sizes/font_size = 64
+text = "Start"
+
+[node name="MessageTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]
